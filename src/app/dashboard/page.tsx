@@ -100,18 +100,16 @@ export default function DashboardPage() {
 
       const data: GenerateResponse = await res.json()
       setResult(data)
-
-      const supabase = createClient()
-      const inserts = data.posts.map((post) => ({
-        user_id: user.id,
-        topic: topic.trim(),
-        platform: post.platform,
-        content: post.content,
-        language,
-        tone,
-      }))
-      const { data: saved } = await supabase.from("generated_posts").insert(inserts).select()
-      if (saved) setSavedPosts((prev) => [...saved.reverse(), ...prev].slice(0, 20))
+      setSavedPosts((prev) => [
+        ...data.posts.map((p) => ({
+          id: `${p.platform}-${Date.now()}`,
+          topic: topic.trim(),
+          platform: p.platform,
+          content: p.content,
+          created_at: new Date().toISOString(),
+        })),
+        ...prev,
+      ].slice(0, 20))
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong")
     } finally {
