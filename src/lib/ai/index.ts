@@ -1,5 +1,8 @@
 import { generateGemini } from "./gemini"
 import { generateGroq } from "./groq"
+import { generateCloudflare } from "./cloudflare"
+import { generateDeepSeek } from "./deepseek"
+import { generateHuggingFace } from "./huggingface"
 import type { GenerateRequest, GeneratedPost } from "@/lib/types"
 
 const SYSTEM_PROMPT = `You are a professional social media content strategist.
@@ -22,6 +25,14 @@ const PLATFORM_PROMPTS: Record<string, string> = {
   threads: "Threads post (under 150 words, conversational, 1-2 hashtags):",
 }
 
+const providers = [
+  { name: "Gemini", fn: generateGemini },
+  { name: "Groq", fn: generateGroq },
+  { name: "Cloudflare", fn: generateCloudflare },
+  { name: "DeepSeek", fn: generateDeepSeek },
+  { name: "HuggingFace", fn: generateHuggingFace },
+]
+
 export async function generatePosts(request: GenerateRequest): Promise<GeneratedPost[]> {
   const { topic, platforms, tone, language, brandProfile } = request
 
@@ -42,31 +53,34 @@ export async function generatePosts(request: GenerateRequest): Promise<Generated
         "Generate the post. Return ONLY the post content, no explanations.",
       ].join("\n")
 
-      let content = ""
-      let error: Error | null = null
-
-      try {
-        content = await generateGemini(prompt)
-      } catch (e) {
-        error = e instanceof Error ? e : new Error("Gemini failed")
-        try {
-          content = await generateGroq(prompt)
-        } catch {
-          throw error
-        }
-      }
+      const result = await tryAllProviders(prompt)
 
       return {
         platform,
-        content,
-        hashtags: content.match(/#[\wа-яА-Я]+/g)?.slice(0, 5) || [],
+        content: result,
+        hashtags: result.match(/#[\wа-яА-Я]+/g)?.slice(0, 5) || [],
         imagePrompt: request.includeImage
           ? `Social media image for ${platform} about: ${topic}. Clean, modern, professional. No text.`
           : undefined,
-        characterCount: content.length,
+        characterCount: result.length,
       }
     })
   )
+}
+
+async function tryAllProviders(prompt: string): Promise<string> {
+  const errors: string[] = []
+
+  for (const { name, fn } of providers) {
+    try {
+      const result = await fn(prompt)
+      if (result) return result
+    } catch (e) {
+      errors.push(`${name}: ${e instanceof Error ? e.message : "unknown error"}`)
+    }
+  }
+
+  throw new Error(`All AI providers failed:\n${errors.join("\n")}`)
 }
 
 function getLangInstruction(lang: string): string {
