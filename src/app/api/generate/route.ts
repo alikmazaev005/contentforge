@@ -1,14 +1,32 @@
 import { NextResponse } from "next/server"
 import { generatePosts } from "@/lib/ai"
 import { createClient } from "@/lib/supabase/server"
+import { createClient as createAdminClient } from "@supabase/supabase-js"
 import type { GenerateRequest } from "@/lib/types"
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    let userId: string | null = null
 
-    if (!user) {
+    const authHeader = request.headers.get("authorization")
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.slice(7)
+      const admin = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false, autoRefreshToken: false } }
+      )
+      const { data: { user }, error } = await admin.auth.getUser(token)
+      if (user) userId = user.id
+    }
+
+    if (!userId) {
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) userId = user.id
+    }
+
+    if (!userId) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
@@ -21,8 +39,14 @@ export async function POST(request: Request) {
 
     const posts = await generatePosts(body)
 
+    const supabase = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    )
+
     const inserts = posts.map((post) => ({
-      user_id: user.id,
+      user_id: userId,
       topic: topic.trim(),
       platform: post.platform,
       content: post.content,
