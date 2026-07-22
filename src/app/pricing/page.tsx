@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Loader2, Copy, Check, ExternalLink } from "lucide-react"
+import { CheckCircle, Loader2, Copy, Check } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 const PLANS = [
@@ -15,24 +15,19 @@ const PLANS = [
 ]
 
 const PROVIDERS = [
-  { id: "lemonsqueezy", name: "Lemon Squeezy", flag: "🌎", desc: "Credit Card, Apple Pay, Google Pay", note: "Recommended for international users" },
-  { id: "paddle", name: "Paddle", flag: "🌎", desc: "Card, PayPal", note: "Backup international option" },
-  { id: "yookassa", name: "ЮKassa", flag: "🇷🇺", desc: "Карты, СБП, ЮMoney", note: "Для пользователей из РФ" },
-  { id: "crypto", name: "Crypto", flag: "₿", desc: "USDT (TRC-20)", note: "Anonymous, one-click" },
+  { id: "nowpayments", name: "NOWPayments", flag: "₿", desc: "Crypto / Card (любая страна)", note: "USDT, BTC, Visa/MC — без ограничений" },
+  { id: "yookassa", name: "ЮKassa", flag: "🇷🇺", desc: "Карты РФ, СБП, ЮMoney", note: "Для пользователей из России" },
+  { id: "crypto", name: "Crypto Direct", flag: "🔗", desc: "USDT (TRC-20)", note: "Отправьте USDT напрямую на кошелёк" },
 ] as const
-
-type ProviderId = (typeof PROVIDERS)[number]["id"]
 
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null)
-  const [provider, setProvider] = useState<ProviderId>("lemonsqueezy")
-  const [cryptoInfo, setCryptoInfo] = useState<{ address: string; amount: string } | null>(null)
+  const [provider, setProvider] = useState<string>("nowpayments")
   const [copied, setCopied] = useState(false)
   const router = useRouter()
 
   const handleSubscribe = async (planId: string) => {
     setLoading(planId)
-    setCryptoInfo(null)
 
     try {
       const supabase = createClient()
@@ -44,11 +39,6 @@ export default function PricingPage() {
       }
 
       if (provider === "crypto") {
-        const plan = PLANS.find((p) => p.id === planId)
-        if (plan) {
-          setCryptoInfo({ address: "TBD", amount: plan.price.toString() })
-        }
-        setLoading(null)
         return
       }
 
@@ -65,17 +55,9 @@ export default function PricingPage() {
         alert(data.error)
       }
     } catch {
-      alert("Payment failed. Please try again.")
+      alert("Payment failed. Try again.")
     } finally {
       setLoading(null)
-    }
-  }
-
-  const copyAddress = () => {
-    if (cryptoInfo) {
-      navigator.clipboard.writeText(cryptoInfo.address)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
     }
   }
 
@@ -87,14 +69,14 @@ export default function PricingPage() {
           <div className="mx-auto max-w-2xl text-center">
             <Badge variant="violet" className="mb-4">Pricing</Badge>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Simple, transparent pricing</h1>
-            <p className="mt-4 text-lg text-neutral-500">Start for free. Upgrade when you need more.</p>
+            <p className="mt-4 text-lg text-neutral-500">Start for free. Pay with crypto or card.</p>
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-2">
             {PROVIDERS.map((p) => (
               <button
                 key={p.id}
-                onClick={() => { setProvider(p.id); setCryptoInfo(null) }}
+                onClick={() => setProvider(p.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-sm ${
                   provider === p.id
                     ? "border-violet-200 bg-violet-50 shadow-sm"
@@ -107,9 +89,15 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <div className="mt-2 text-center text-sm text-neutral-400">
-            {PROVIDERS.find((p) => p.id === provider)?.note}
-          </div>
+          {provider !== "crypto" && (
+            <div className="mt-2 text-center text-sm text-neutral-400">
+              {PROVIDERS.find((p) => p.id === provider)?.note}
+            </div>
+          )}
+
+          {provider === "crypto" && (
+            <CryptoInfo copied={copied} setCopied={setCopied} />
+          )}
 
           <div className="mt-10 grid gap-8 lg:grid-cols-2 max-w-3xl mx-auto">
             {PLANS.map((plan) => (
@@ -149,29 +137,14 @@ export default function PricingPage() {
                 >
                   {loading === plan.id ? (
                     <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</>
-                  ) : provider === "crypto" ? (
-                    "Pay with USDT"
                   ) : provider === "yookassa" ? (
                     `Оплатить ${plan.rubPrice} ₽`
+                  ) : provider === "crypto" ? (
+                    `Send $${plan.price} USDT`
                   ) : (
                     "Subscribe"
                   )}
                 </Button>
-
-                {cryptoInfo && loading === plan.id && (
-                  <div className="mt-4 p-4 bg-neutral-50 rounded-xl border text-sm space-y-2">
-                    <p className="font-medium">Send USDT (TRC-20):</p>
-                    <div className="flex items-center gap-2 bg-white rounded-lg border p-2">
-                      <code className="flex-1 text-xs break-all">{cryptoInfo.address}</code>
-                      <button onClick={copyAddress} className="shrink-0 p-1.5 hover:bg-neutral-100 rounded-lg">
-                        {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4 text-neutral-400" />}
-                      </button>
-                    </div>
-                    <p className="text-neutral-500 text-xs">
-                      After payment, send TXID to @contentforge support for activation.
-                    </p>
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -179,5 +152,31 @@ export default function PricingPage() {
       </main>
       <Footer />
     </>
+  )
+}
+
+function CryptoInfo({ copied, setCopied }: { copied: boolean; setCopied: (v: boolean) => void }) {
+  const [address, setAddress] = useState("")
+
+  useEffect(() => {
+    fetch("/api/payment/crypto-address")
+      .then((r) => r.json())
+      .then((d) => d.address && setAddress(d.address))
+      .catch(() => {})
+  }, [])
+
+  if (!address) return null
+
+  return (
+    <div className="mt-4 mx-auto max-w-lg p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm space-y-2">
+      <p className="font-medium text-amber-800">₿ Pay with USDT (TRC-20)</p>
+      <p className="text-amber-700 text-xs">Send exact amount to the address below. After payment, send TXID to support for activation.</p>
+      <div className="flex items-center gap-2 bg-white rounded-lg border border-amber-200 p-2">
+        <code className="flex-1 text-xs break-all">{address}</code>
+        <button onClick={() => { navigator.clipboard.writeText(address); setCopied(true); setTimeout(() => setCopied(false), 2000) }} className="shrink-0 p-1.5 hover:bg-amber-50 rounded-lg">
+          {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4 text-amber-600" />}
+        </button>
+      </div>
+    </div>
   )
 }

@@ -1,65 +1,81 @@
-import type { PaymentProvider, PaymentResult, PaymentPlan } from "./types"
-import { createLemonsqueezyCheckout } from "./lemonsqueezy"
-import { createPaddleCheckout } from "./paddle"
-import { createYooKassaPayment } from "./yookassa"
-import { getCryptoPaymentInfo } from "./crypto"
+import { createClient } from "@/lib/supabase/server"
 
 export const PLANS = [
-  { id: "pro", name: "Pro", price: 9, posts: 50, features: ["50 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Brand voice profile"], popular: true },
-  { id: "business", name: "Business", price: 29, posts: 200, features: ["200 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Team collaboration", "Priority support"], popular: false },
+  { id: "pro", name: "Pro", price: 9, rubPrice: 790, posts: 50, features: ["50 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Brand voice profile"], popular: true },
+  { id: "business", name: "Business", price: 29, rubPrice: 2490, posts: 200, features: ["200 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Team collaboration", "Priority support"], popular: false },
 ] as const
 
-export const PROVIDER_INFO: Record<PaymentProvider, { name: string; icon: string; description: string }> = {
-  lemonsqueezy: { name: "Lemon Squeezy", icon: "🍋", description: "Credit card, Apple Pay, Google Pay" },
-  paddle: { name: "Paddle", icon: "🛶", description: "Credit card, PayPal" },
-  yookassa: { name: "ЮKassa", icon: "💳", description: "Карты, СБП, ЮMoney" },
-  crypto: { name: "Crypto", icon: "₿", description: "USDT (TRC-20)" },
+const NP_API = "https://api.nowpayments.io/v1"
+
+async function nowpaymentsFetch(path: string, body: Record<string, unknown>) {
+  const apiKey = process.env.NOWPAYMENTS_API_KEY
+  if (!apiKey) throw new Error("NOWPAYMENTS_API_KEY not configured")
+
+  const res = await fetch(`${NP_API}${path}`, {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  })
+
+  const data = await res.json()
+  if (!res.ok) throw new Error(`NOWPayments error: ${data.message || data.error || res.status}`)
+  return data
 }
 
-export async function createPayment(
-  provider: PaymentProvider,
-  plan: PaymentPlan,
+export async function createNowPaymentsInvoice(
+  amount: number,
+  planId: string,
   userId: string,
   userEmail: string
-): Promise<PaymentResult> {
+): Promise<{ url: string; invoiceId: string }> {
   const origin = process.env.NEXT_PUBLIC_SITE_URL || "https://socialbloom-psi.vercel.app"
-  const successUrl = `${origin}/dashboard?success=true`
 
-  switch (provider) {
-    case "lemonsqueezy": {
-      const url = await createLemonsqueezyCheckout(plan.priceId, userId, userEmail, successUrl)
-      if (!url) throw new Error("Lemon Squeezy checkout failed — check API keys and variant IDs")
-      return { provider, url }
-    }
+  const data = await nowpaymentsFetch("/invoice", {
+    price_amount: amount,
+    price_currency: "usd",
+    order_id: `${userId}_${planId}_${Date.now()}`,
+    order_description: `ContentForge ${planId === "pro" ? "Pro" : "Business"} subscription`,
+    ipn_callback_url: `${origin}/api/payment/webhook`,
+    success_url: `${origin}/dashboard?success=true`,
+    cancel_url: `${origin}/pricing?cancelled=true`,
+    is_fixed_rate: true,
+    is_fee_paid_by_user: true,
+    payout_address: process.env.CRYPTO_WALLET_ADDRESS,
+    payout_currency: "usdttrc20",
+    customer_email: userEmail,
+    customer_id: userId,
+  })
 
-    case "paddle": {
-      const url = await createPaddleCheckout(plan.priceId, userId, userEmail, successUrl)
-      if (!url) throw new Error("Paddle checkout failed — check API keys")
-      return { provider, url }
-    }
+  return { url: data.invoice_url, invoiceId: data.id?.toString() || "" }
+}
 
-    case "yookassa": {
-      const RUB_PRICES: Record<string, number> = { pro: 790, business: 2490 }
-      const rubAmount = RUB_PRICES[plan.id] || Math.round(plan.price * 90)
-      const url = await createYooKassaPayment(
-        rubAmount,
-        `ContentForge ${plan.name} — ${plan.posts} posts/month`,
-        userId,
-        userEmail,
-        successUrl
-      )
-      if (!url) throw new Error("ЮKassa payment failed — check Shop ID and key")
-      return { provider, url }
-    }
+export async function handleNowPaymentsWebhook(payload: Record<string, unknown>) {
+  const supabase = await createClient()
+  const invoiceId = payload.invoice_id?.toString()
+  const orderId = (payload.order_id || "").toString()
+  const status = (payload.payment_status || "").toString()
 
-    case "crypto": {
-      const info = getCryptoPaymentInfo(plan.id, plan.price)
-      if (!info) throw new Error("Crypto wallet not configured")
-      return {
-        provider,
-        instructions: info.instructions,
-        walletAddress: info.walletAddress,
-      }
-    }
+  if (status !== "finished" && status !== "confirmed") return
+
+  const userId = orderId.split("_")[0]
+  const planId = orderId.split("_")[1]
+
+  if (!userId || !planId) return
+
+  const existing = await supabase.from("user_subscriptions").select("id").eq("user_id", userId).single()
+
+  if (existing.data) {
+    await supabase
+      .from("user_subscriptions")
+      .update({ status: "active", updated_at: new Date().toISOString() })
+      .eq("user_id", userId)
+  } else {
+    await supabase.from("user_subscriptions").insert({
+      user_id: userId,
+      status: "active",
+    })
   }
 }
