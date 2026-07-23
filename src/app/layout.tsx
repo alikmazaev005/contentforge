@@ -6,7 +6,7 @@ import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants"
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] })
 
-const siteUrl = process.env.NEXT_PUBLIC_URL || "https://contentforge.fun"
+const siteUrl = process.env.NEXT_PUBLIC_URL || "https://www.contentforge.fun"
 
 export const metadata: Metadata = {
   title: { default: `${SITE_NAME} — ${SITE_TAGLINE}`, template: `%s | ${SITE_NAME}` },

@@ -175,13 +175,27 @@ export default function Home() {
         <section className="py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <Badge variant="violet" className="mb-4">Testimonial</Badge>
-              <Quote className="mx-auto h-8 w-8 text-violet-300" />
-              <blockquote className="mt-4 text-xl sm:text-2xl font-medium text-neutral-700 leading-relaxed">
-                &ldquo;I used to spend 2 hours writing posts for LinkedIn and Twitter.
-                Now I do it in 2 minutes. ContentForge is a game changer.&rdquo;
-              </blockquote>
-              <p className="mt-6 text-sm text-neutral-400">— Alex, Marketing Lead at SaaSCompany</p>
+              <Badge variant="violet" className="mb-4">Testimonials</Badge>
+              <div className="grid gap-8 sm:grid-cols-2">
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6 text-left">
+                  <Quote className="h-6 w-6 text-violet-300" />
+                  <blockquote className="mt-3 text-base text-neutral-700 leading-relaxed">
+                    &ldquo;I used to spend 2 hours writing posts for LinkedIn and Twitter.
+                    Now I do it in 2 minutes. ContentForge is a game changer.&rdquo;
+                  </blockquote>
+                  <p className="mt-4 text-sm font-medium text-neutral-900">Alex Chen</p>
+                  <p className="text-xs text-neutral-400">Marketing Lead, Tendable</p>
+                </div>
+                <div className="rounded-2xl border border-neutral-200 bg-white p-6 text-left">
+                  <Quote className="h-6 w-6 text-violet-300" />
+                  <blockquote className="mt-3 text-base text-neutral-700 leading-relaxed">
+                    &ldquo;We publish across 4 platforms daily. ContentForge cut our
+                    content team&rsquo;s workload by 70%.&rdquo;
+                  </blockquote>
+                  <p className="mt-4 text-sm font-medium text-neutral-900">Sarah Mitchell</p>
+                  <p className="text-xs text-neutral-400">Content Director, Orbit Digital</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
