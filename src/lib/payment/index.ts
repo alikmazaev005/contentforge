@@ -7,7 +7,7 @@ export const PLANS = [
 
 const NP_API = "https://api.nowpayments.io/v1"
 
-async function nowpaymentsFetch(path: string, body: Record<string, unknown>) {
+async function nowpaymentsFetch(path: string, body: Record<string, unknown>): Promise<any> {
   const apiKey = process.env.NOWPAYMENTS_API_KEY
   if (!apiKey) throw new Error("NOWPAYMENTS_API_KEY not configured")
 
@@ -20,8 +20,13 @@ async function nowpaymentsFetch(path: string, body: Record<string, unknown>) {
     body: JSON.stringify(body),
   })
 
-  const data = await res.json()
-  if (!res.ok) throw new Error(`NOWPayments error: ${data.message || data.error || res.status}`)
+  const text = await res.text()
+  let data: any
+  try { data = JSON.parse(text) } catch { data = { raw: text } }
+  if (!res.ok) {
+    console.error("NOWPayments error response:", res.status, text)
+    throw new Error(`NOWPayments error: ${data.message || data.error || res.status}`)
+  }
   return data
 }
 
@@ -43,10 +48,7 @@ export async function createNowPaymentsInvoice(
     cancel_url: `${origin}/pricing?cancelled=true`,
     is_fixed_rate: true,
     is_fee_paid_by_user: true,
-    payout_address: process.env.CRYPTO_WALLET_ADDRESS,
-    payout_currency: "usdttrc20",
     customer_email: userEmail,
-    customer_id: userId,
   })
 
   return { url: data.invoice_url, invoiceId: data.id?.toString() || "" }

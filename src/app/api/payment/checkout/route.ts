@@ -57,6 +57,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Checkout error:", error)
     const message = error instanceof Error ? error.message : "Checkout failed"
-    return NextResponse.json({ error: message }, { status: 500 })
+    const stack = error instanceof Error ? error.stack : undefined
+    return NextResponse.json({ error: message, stack }, { status: 500 })
   }
 }

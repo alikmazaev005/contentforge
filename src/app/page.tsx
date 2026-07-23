@@ -3,8 +3,33 @@ import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { PLATFORMS, LANGUAGES } from "@/lib/constants"
+import { PLATFORMS, LANGUAGES, SITE_NAME, SITE_TAGLINE } from "@/lib/constants"
 import { Sparkles, Wand2, Globe, ImageIcon, Zap, CheckCircle, ArrowRight, Quote } from "lucide-react"
+
+const siteUrl = process.env.NEXT_PUBLIC_URL || "https://contentforge.fun"
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: SITE_NAME,
+  description: SITE_TAGLINE,
+  url: siteUrl,
+  applicationCategory: "Multimedia",
+  operatingSystem: "Web",
+  offers: [
+    { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD" },
+    { "@type": "Offer", name: "Pro", price: "9", priceCurrency: "USD" },
+    { "@type": "Offer", name: "Business", price: "29", priceCurrency: "USD" },
+  ],
+}
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: siteUrl,
+  description: SITE_TAGLINE,
+}
 
 const FEATURES = [
   {
@@ -39,6 +64,8 @@ const STEPS = [
 export default function Home() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
       <Navbar />
       <main>
         <section className="relative overflow-hidden border-b border-neutral-200/60">

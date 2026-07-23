@@ -16,6 +16,8 @@ export function Footer() {
             <Link href="/#how-it-works" className="hover:text-neutral-700 transition-colors">How it Works</Link>
             <Link href="/pricing" className="hover:text-neutral-700 transition-colors">Pricing</Link>
             <Link href="/privacy" className="hover:text-neutral-700 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-neutral-700 transition-colors">Terms</Link>
+            <Link href="/contact" className="hover:text-neutral-700 transition-colors">Contact</Link>
           </nav>
           <p className="text-sm text-neutral-400">© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</p>
         </div>

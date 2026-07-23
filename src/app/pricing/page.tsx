@@ -54,8 +54,8 @@ export default function PricingPage() {
       } else if (data.error) {
         alert(data.error)
       }
-    } catch {
-      alert("Payment failed. Try again.")
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Payment failed. Try again.")
     } finally {
       setLoading(null)
     }
