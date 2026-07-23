@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { Suspense, useState, useRef, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
@@ -8,11 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Sparkles, Loader2, ArrowLeft, MailCheck } from "lucide-react"
+import { Sparkles, Loader2, MailCheck } from "lucide-react"
 
 type Mode = "signin" | "signup" | "forgot" | "check-email"
 
-export default function AuthPage() {
+function AuthForm() {
   const [mode, setMode] = useState<Mode>("signin")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -239,5 +239,13 @@ export default function AuthPage() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthForm />
+    </Suspense>
   )
 }
