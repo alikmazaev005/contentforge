@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { PLATFORMS, TONES, LANGUAGES } from "@/lib/constants"
 import type { Platform, Tone, Language, GenerateResponse } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
-import { Sparkles, Send, Copy, Check, Loader2, ImageIcon, User, Settings, History, Menu, CreditCard } from "lucide-react"
+import { Sparkles, Send, Copy, Check, Loader2, ImageIcon, User, Settings, History, Menu, CreditCard, ExternalLink } from "lucide-react"
 import Link from "next/link"
 
 interface BrandProfile {
@@ -153,9 +153,9 @@ export default function DashboardPage() {
             <Link href="/dashboard/billing">
               <Button variant="ghost" size="sm"><CreditCard className="h-4 w-4 mr-1.5" /> Billing</Button>
             </Link>
-            <button onClick={() => setShowHistory(!showHistory)} className="hidden sm:inline-flex">
+            <Link href="/dashboard/history" className="hidden sm:inline-flex">
               <Button variant="ghost" size="sm"><History className="h-4 w-4 mr-1.5" /> History</Button>
-            </button>
+            </Link>
             <Link href="/dashboard/billing">
               <Button variant="outline" size="sm">Usage</Button>
             </Link>
@@ -254,19 +254,30 @@ export default function DashboardPage() {
               </Card>
             )}
 
-            {showHistory && savedPosts.length > 0 && (
+            {showHistory && (
               <Card>
                 <CardHeader><CardTitle className="text-lg">Recent Posts</CardTitle></CardHeader>
-                <CardContent className="space-y-3 max-h-96 overflow-y-auto scrollbar-hide">
-                  {savedPosts.map((post) => (
-                    <div key={post.id} className="rounded-xl border border-neutral-100 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition-colors" onClick={() => { copyContent(post.content, post.id); }}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="secondary" className="text-[10px] px-2 py-0">{post.platform}</Badge>
-                        <span className="text-[10px] text-neutral-400">{new Date(post.created_at).toLocaleDateString()}</span>
-                      </div>
-                      <p className="text-xs text-neutral-600 line-clamp-2">{post.content}</p>
+                <CardContent className="space-y-3">
+                  {savedPosts.length === 0 ? (
+                    <p className="text-sm text-neutral-400 text-center py-4">No posts yet.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-72 overflow-y-auto scrollbar-hide">
+                      {savedPosts.slice(0, 5).map((post) => (
+                        <div key={post.id} className="rounded-xl border border-neutral-100 bg-neutral-50 p-3 cursor-pointer hover:bg-neutral-100 transition-colors" onClick={() => { copyContent(post.content, post.id); }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="secondary" className="text-[10px] px-2 py-0">{post.platform}</Badge>
+                            <span className="text-[10px] text-neutral-400">{new Date(post.created_at).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-xs text-neutral-600 line-clamp-2">{post.content}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  <Link href="/dashboard/history">
+                    <Button variant="outline" size="sm" className="w-full gap-1.5">
+                      <ExternalLink className="h-3.5 w-3.5" /> View all
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             )}
