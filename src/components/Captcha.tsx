@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useCallback, useEffect, useState } from "react"
 
 declare global {
   interface Window {
@@ -20,54 +20,66 @@ interface CaptchaProps {
 export function Captcha({ onToken }: CaptchaProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
+  const [ready, setReady] = useState(false)
   const siteKey = typeof window !== "undefined"
     ? process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY
     : ""
 
+  const handleVerify = useCallback(
+    (token: string) => onToken(token),
+    [onToken]
+  )
+
+  const handleExpire = useCallback(() => {
+    onToken("")
+    if (widgetIdRef.current && window.hcaptcha) {
+      window.hcaptcha.reset(widgetIdRef.current)
+    }
+  }, [onToken])
+
   useEffect(() => {
     if (!siteKey || !containerRef.current) return
-
-    const id = "hcaptcha-script"
-    if (!document.getElementById(id)) {
-      const script = document.createElement("script")
-      script.id = id
-      script.src = "https://js.hcaptcha.com/1/api.js?render=explicit&onload=hcaptchaOnLoad"
-      script.async = true
-      script.defer = true
-      document.head.appendChild(script)
-    }
 
     const init = () => {
       if (!containerRef.current || !window.hcaptcha) return
       widgetIdRef.current = window.hcaptcha.render(containerRef.current, {
         sitekey: siteKey,
-        callback: (token: string) => onToken(token),
-        "expired-callback": () => onToken(""),
+        callback: handleVerify,
+        "expired-callback": handleExpire,
       })
+      setReady(true)
     }
 
     if (window.hcaptcha) {
       init()
-    } else {
-      window.hcaptchaOnLoad = init
+      return
+    }
+
+    window.hcaptchaOnLoad = init
+
+    const id = "hcaptcha-script"
+    if (!document.getElementById(id)) {
+      const script = document.createElement("script")
+      script.id = id
+      script.src = "https://js.hcaptcha.com/1/api.js?onload=hcaptchaOnLoad&render=explicit"
+      script.async = true
+      script.defer = true
+      document.head.appendChild(script)
     }
 
     return () => {
-      window.hcaptchaOnLoad = undefined
+      if (window.hcaptchaOnLoad === init) {
+        window.hcaptchaOnLoad = undefined
+      }
     }
-  }, [siteKey, onToken])
+  }, [siteKey, handleVerify, handleExpire])
+
+  if (!siteKey) return null
 
   return (
     <div
       ref={containerRef}
-      className="h-captcha"
-      data-sitekey={siteKey}
+      className={ready ? "hcaptcha-ready" : "hcaptcha-loading"}
     />
   )
-}
-
-export function resetCaptcha(widgetId: string | null) {
-  if (widgetId && window.hcaptcha) {
-    window.hcaptcha.reset(widgetId)
-  }
 }
