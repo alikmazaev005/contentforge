@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { PLATFORMS, TONES, LANGUAGES } from "@/lib/constants"
 import type { Platform, Tone, Language, GenerateResponse } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
-import { Sparkles, Send, Copy, Check, Loader2, ImageIcon, User, Settings, History, Menu, CreditCard, ExternalLink } from "lucide-react"
+import { Sparkles, Send, Copy, Check, Loader2, ImageIcon, User, Settings, History, Menu, CreditCard, ExternalLink, BarChart3 } from "lucide-react"
 import Link from "next/link"
 
 interface BrandProfile {
@@ -149,6 +149,9 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <Link href="/dashboard/brand">
               <Button variant="ghost" size="sm"><Settings className="h-4 w-4 mr-1.5" /> Brand</Button>
+            </Link>
+            <Link href="/dashboard/analytics" className="hidden sm:inline-flex">
+              <Button variant="ghost" size="sm"><BarChart3 className="h-4 w-4 mr-1.5" /> Analytics</Button>
             </Link>
             <Link href="/dashboard/billing">
               <Button variant="ghost" size="sm"><CreditCard className="h-4 w-4 mr-1.5" /> Billing</Button>
