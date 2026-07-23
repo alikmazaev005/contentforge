@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Sparkles, Loader2, ArrowLeft, CheckCircle, XCircle, ExternalLink, PartyPopper } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { PLANS } from "@/lib/payment"
+import { PLANS } from "@/lib/plans"
 
 interface Subscription {
   status: string

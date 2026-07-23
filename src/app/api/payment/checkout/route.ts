@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { createNowPaymentsInvoice, PLANS } from "@/lib/payment"
+import { PLANS } from "@/lib/plans"
+import { createNowPaymentsInvoice } from "@/lib/payment"
 
 export async function POST(request: Request) {
   try {

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { generatePosts } from "@/lib/ai"
 import { createClient } from "@/lib/supabase/server"
 import { createClient as createAdminClient } from "@supabase/supabase-js"
-import { getUserPlan, PLANS } from "@/lib/payment"
+import { PLANS } from "@/lib/plans"
+import { getUserPlan } from "@/lib/payment"
 import type { GenerateRequest } from "@/lib/types"
 
 export async function POST(request: Request) {
