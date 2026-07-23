@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { PLATFORMS, TONES, LANGUAGES } from "@/lib/constants"
 import type { Platform, Tone, Language, GenerateResponse } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
-import { Sparkles, Send, Copy, Check, Loader2, ImageIcon, User, Settings, History, Menu } from "lucide-react"
+import { Sparkles, Send, Copy, Check, Loader2, ImageIcon, User, Settings, History, Menu, CreditCard } from "lucide-react"
 import Link from "next/link"
 
 interface BrandProfile {
@@ -150,9 +150,15 @@ export default function DashboardPage() {
             <Link href="/dashboard/brand">
               <Button variant="ghost" size="sm"><Settings className="h-4 w-4 mr-1.5" /> Brand</Button>
             </Link>
+            <Link href="/dashboard/billing">
+              <Button variant="ghost" size="sm"><CreditCard className="h-4 w-4 mr-1.5" /> Billing</Button>
+            </Link>
             <button onClick={() => setShowHistory(!showHistory)} className="hidden sm:inline-flex">
               <Button variant="ghost" size="sm"><History className="h-4 w-4 mr-1.5" /> History</Button>
             </button>
+            <Link href="/dashboard/billing">
+              <Button variant="outline" size="sm">Usage</Button>
+            </Link>
             <Link href="/pricing">
               <Button variant="outline" size="sm">Upgrade</Button>
             </Link>

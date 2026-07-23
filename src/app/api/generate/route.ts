@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { generatePosts } from "@/lib/ai"
 import { createClient } from "@/lib/supabase/server"
 import { createClient as createAdminClient } from "@supabase/supabase-js"
+import { getUserPlan, PLANS } from "@/lib/payment"
 import type { GenerateRequest } from "@/lib/types"
 
 export async function POST(request: Request) {
@@ -35,6 +36,16 @@ export async function POST(request: Request) {
 
     if (!topic || !platforms?.length) {
       return NextResponse.json({ error: "Topic and platforms are required" }, { status: 400 })
+    }
+
+    const { plan, postsUsed, postsLimit } = await getUserPlan(userId)
+    const newCount = postsUsed + platforms.length
+    if (newCount > postsLimit) {
+      const planInfo = PLANS.find((p) => p.id === plan)
+      return NextResponse.json({
+        error: `You've used ${postsUsed}/${postsLimit} posts this month. ${plan === "free" ? "Upgrade to Pro for 50 posts/month." : "Upgrade or wait for next billing cycle."}`,
+        limit: { used: postsUsed, limit: postsLimit, plan },
+      }, { status: 403 })
     }
 
     const posts = await generatePosts(body)

@@ -41,7 +41,7 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           amount: { value: plan.rubPrice.toFixed(2), currency: "RUB" },
-          confirmation: { type: "redirect", return_url: `${origin}/dashboard?success=true` },
+          confirmation: { type: "redirect", return_url: `${origin}/dashboard/billing?success=true` },
           capture: true,
           description: `ContentForge ${plan.name}`,
           metadata: { user_id: user.id },
