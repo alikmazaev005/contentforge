@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { generatePosts } from "@/lib/ai"
+import { generateImage } from "@/lib/ai/generate-image"
 import { createClient } from "@/lib/supabase/server"
 import { createClient as createAdminClient } from "@supabase/supabase-js"
 import { PLANS } from "@/lib/plans"
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     const body: GenerateRequest = await request.json()
-    const { topic, platforms, tone, language } = body
+    const { topic, platforms, tone, language, includeImage } = body
 
     if (!topic || !platforms?.length) {
       return NextResponse.json({ error: "Topic and platforms are required" }, { status: 400 })
@@ -42,7 +43,6 @@ export async function POST(request: Request) {
     const { plan, postsUsed, postsLimit } = await getUserPlan(userId)
     const newCount = postsUsed + platforms.length
     if (newCount > postsLimit) {
-      const planInfo = PLANS.find((p) => p.id === plan)
       return NextResponse.json({
         error: `You've used ${postsUsed}/${postsLimit} posts this month. ${plan === "free" ? "Upgrade to Pro for 50 posts/month." : "Upgrade or wait for next billing cycle."}`,
         limit: { used: postsUsed, limit: postsLimit, plan },
@@ -57,6 +57,19 @@ export async function POST(request: Request) {
       { auth: { persistSession: false, autoRefreshToken: false } }
     )
 
+    const imagePromises = posts.map(async (post, index) => {
+      if (!includeImage || !post.imagePrompt) return
+
+      const imageUrl = await generateImage(post.imagePrompt, userId!, post.platform)
+      if (imageUrl) {
+        posts[index].imageUrl = imageUrl
+      }
+
+      await new Promise((r) => setTimeout(r, index * 500))
+    })
+
+    await Promise.all(imagePromises)
+
     const inserts = posts.map((post) => ({
       user_id: userId,
       topic: topic.trim(),
@@ -64,6 +77,7 @@ export async function POST(request: Request) {
       content: post.content,
       language,
       tone,
+      image_url: post.imageUrl || null,
     }))
 
     const { error: dbError } = await supabase.from("generated_posts").insert(inserts)

@@ -310,6 +310,11 @@ export default function DashboardPage() {
                         </Button>
                       </div>
                       <CardContent className="p-6">
+                        {post.imageUrl && (
+                          <div className="mb-4 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50">
+                            <img src={post.imageUrl} alt="Generated" className="w-full h-auto object-cover max-h-72" />
+                          </div>
+                        )}
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
                         {post.hashtags.length > 0 && (
                           <div className="mt-4 flex flex-wrap gap-1.5">
