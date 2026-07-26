@@ -41,10 +41,20 @@ export async function POST(request: Request) {
     }
 
     const { plan, postsUsed, postsLimit } = await getUserPlan(userId)
+
+    // Enforce platform limit for free plan
+    const PLAN_PLATFORM_LIMITS: Record<string, number> = { free: 2, pro: 6, business: 6 }
+    const maxPlatforms = PLAN_PLATFORM_LIMITS[plan] || 6
+    if (platforms.length > maxPlatforms) {
+      return NextResponse.json({
+        error: `Free plan allows up to ${maxPlatforms} platforms. Select ${maxPlatforms} or upgrade to Pro for all platforms.`,
+      }, { status: 403 })
+    }
+
     const newCount = postsUsed + platforms.length
     if (newCount > postsLimit) {
       return NextResponse.json({
-        error: `You've used ${postsUsed}/${postsLimit} posts this month. ${plan === "free" ? "Upgrade to Pro for 50 posts/month." : "Upgrade or wait for next billing cycle."}`,
+        error: `You've used ${postsUsed}/${postsLimit} posts this month. ${plan === "free" ? "Upgrade to Pro for unlimited posts." : "Upgrade or wait for next billing cycle."}`,
         limit: { used: postsUsed, limit: postsLimit, plan },
       }, { status: 403 })
     }
