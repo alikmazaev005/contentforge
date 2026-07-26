@@ -99,7 +99,7 @@ export default function Home() {
               <div className="mt-8 flex items-center justify-center gap-2 text-sm text-neutral-400">
                 <CheckCircle className="h-4 w-4 text-emerald-500" /> No credit card required
                 <span className="mx-2">·</span>
-                <CheckCircle className="h-4 w-4 text-emerald-500" /> 5 free posts
+                <CheckCircle className="h-4 w-4 text-emerald-500" /> 10 free posts
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function Home() {
               Ready to create content that stands out?
             </h2>
             <p className="mt-4 text-lg text-neutral-400">
-              Start with 5 free posts. No credit card needed.
+              Start with 10 free posts. No credit card needed.
             </p>
             <div className="mt-10">
               <Link href="/auth?signup=true">
