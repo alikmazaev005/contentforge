@@ -325,8 +325,14 @@ export default function DashboardPage() {
                       </div>
                       <CardContent className="p-6">
                         {post.imageUrl && (
-                          <div className="mb-4 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50">
-                            <img src={post.imageUrl} alt="Generated" className="w-full h-auto object-cover max-h-72" />
+                          <div className="mb-4 rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50 relative">
+                            <img src={post.imageUrl.replace("?watermark=1", "")} alt="Generated" className="w-full h-auto object-cover max-h-72" />
+                            {post.imageUrl.includes("watermark=1") && (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent h-20" />
+                                <span className="absolute bottom-2 right-3 text-[10px] font-medium text-white/80 tracking-wider uppercase bg-black/40 px-2 py-0.5 rounded">ContentForge</span>
+                              </div>
+                            )}
                           </div>
                         )}
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
