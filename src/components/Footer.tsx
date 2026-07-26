@@ -22,6 +22,11 @@ export function Footer() {
           <p className="text-sm text-neutral-400">© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</p>
         </div>
       </div>
-    </footer>
+              <div className="flex justify-center mt-4">
+            <a href="https://fazier.com/launches/contentforge.fun" target="_blank" rel="noopener noreferrer">
+              <img src="https://fazier.com/api/v1/public/badges/launch_badges.svg?badge_type=featured&theme=light" width="250" alt="Launched on Fazier" />
+            </a>
+          </div>
+        </footer>
   )
 }
