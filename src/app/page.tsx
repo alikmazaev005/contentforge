@@ -85,6 +85,10 @@ export default function Home() {
               <p className="mt-6 text-lg sm:text-xl text-neutral-500 max-w-2xl mx-auto leading-relaxed">
                 AI generates platform-optimized posts with images in 6 languages.
                 LinkedIn, Twitter, Instagram, Facebook, TikTok, Threads — all from one idea.
+
+// Static page - pre-rendered at build time for fast CDN delivery
+export const dynamic = "force-static"
+
               </p>
               <div className="mt-10 flex items-center justify-center gap-4">
                 <Link href="/auth?signup=true">
