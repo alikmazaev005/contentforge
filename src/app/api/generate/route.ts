@@ -60,7 +60,12 @@ export async function POST(request: Request) {
     const imagePromises = posts.map(async (post, index) => {
       if (!includeImage || !post.imagePrompt) return
 
-      const imageUrl = await generateImage(post.imagePrompt, userId!, post.platform)
+      let imageUrl = await generateImage(post.imagePrompt, userId!, post.platform)
+
+// Apply watermark for free plan users
+if (imageUrl && plan === "free") {
+  imageUrl = `${imageUrl}?watermark=1`
+}
       if (imageUrl) {
         posts[index].imageUrl = imageUrl
       }
