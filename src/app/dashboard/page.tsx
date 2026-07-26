@@ -30,6 +30,7 @@ interface SavedPost {
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null)
+  const [userPlan, setUserPlan] = useState<string>('free')
   const [savedPosts, setSavedPosts] = useState<SavedPost[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [topic, setTopic] = useState("")
@@ -55,6 +56,16 @@ export default function DashboardPage() {
       if (profile) {
         setBrandProfile(profile)
         setTone(profile.tone)
+      }
+
+      const { data: subscription } = await supabase
+        .from('user_subscriptions')
+        .select('plan_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single()
+      if (subscription?.plan_id) {
+        setUserPlan(subscription.plan_id)
       }
 
       const { data: posts } = await supabase
