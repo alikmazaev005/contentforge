@@ -11,7 +11,7 @@ const siteUrl = process.env.NEXT_PUBLIC_URL || "https://www.contentforge.fun"
 export const metadata: Metadata = {
   title: { default: `${SITE_NAME} — ${SITE_TAGLINE}`, template: `%s | ${SITE_NAME}` },
   description: "AI-powered social media content generator. Create engaging posts for LinkedIn, Twitter, Instagram, Facebook, TikTok, Threads in 6 languages.",
-  icons: { icon: "/favicon.svg", apple: "/apple-icon.svg" },
+  icons: { icon: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }, { rel: "icon", url: "/favicon.ico", sizes: "any" }], apple: "/apple-icon.svg" },
   metadataBase: new URL(siteUrl),
   alternates: { canonical: "/" },
   openGraph: {
