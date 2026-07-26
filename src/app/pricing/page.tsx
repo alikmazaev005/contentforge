@@ -10,14 +10,14 @@ import { CheckCircle, Loader2, Copy, Check } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 const PLANS = [
-  { id: "pro", name: "Pro", price: 9, rubPrice: 790, posts: 50, features: ["50 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Brand voice profile"], popular: true },
-  { id: "business", name: "Business", price: 29, rubPrice: 2490, posts: 200, features: ["200 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Team collaboration", "Priority support"], popular: false },
+  { id: "pro", name: "Pro", price: 9, rubPrice: 790, posts: 999, features: ["Unlimited posts", "All 6 platforms", "AI image generation (no watermark)", "6 languages", "Brand voice profile"], popular: true },
+  { id: "business", name: "Business", price: 29, rubPrice: 2490, posts: 200, features: ["200 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Team collaboration (5 seats)", "Priority support"], popular: false },
 ]
 
 const PROVIDERS = [
-  { id: "nowpayments", name: "NOWPayments", flag: "₿", desc: "Crypto / Card (любая страна)", note: "USDT, BTC, Visa/MC — без ограничений" },
-  { id: "yookassa", name: "ЮKassa", flag: "🇷🇺", desc: "Карты РФ, СБП, ЮMoney", note: "Для пользователей из России" },
-  { id: "crypto", name: "Crypto Direct", flag: "🔗", desc: "USDT (TRC-20)", note: "Отправьте USDT напрямую на кошелёк" },
+  { id: "nowpayments", name: "NOWPayments", flag: "?", desc: "Crypto / Card", note: "USDT, BTC, Visa/MC — worldwide" },
+  { id: "yookassa", name: "YooKassa", flag: "RU", desc: "Cards, SBP, YooMoney", note: "For Russian users" },
+  { id: "crypto", name: "Crypto Direct", flag: "BTC", desc: "USDT (TRC-20)", note: "Send USDT directly to wallet" },
 ] as const
 
 export default function PricingPage() {
@@ -114,11 +114,11 @@ export default function PricingPage() {
                     ) : (
                       <>
                         <span className="text-4xl font-bold">{plan.rubPrice} ₽</span>
-                        <span className="text-sm text-neutral-400">/мес</span>
+                        <span className="text-sm text-neutral-400">/month</span>
                       </>
                     )}
                   </div>
-                  <p className="mt-1 text-sm text-neutral-500">{plan.posts} posts included</p>
+                  <p className="mt-1 text-sm text-neutral-500">{plan.posts > 500 ? "Unlimited posts" : `${plan.posts} posts/month`}</p>
                 </div>
                 <ul className="mb-8 space-y-3">
                   {plan.features.map((f) => (
@@ -138,7 +138,7 @@ export default function PricingPage() {
                   {loading === plan.id ? (
                     <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</>
                   ) : provider === "yookassa" ? (
-                    `Оплатить ${plan.rubPrice} ₽`
+                    `Subscribe ${plan.rubPrice} ₽`
                   ) : provider === "crypto" ? (
                     `Send $${plan.price} USDT`
                   ) : (
@@ -169,7 +169,7 @@ function CryptoInfo({ copied, setCopied }: { copied: boolean; setCopied: (v: boo
 
   return (
     <div className="mt-4 mx-auto max-w-lg p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm space-y-2">
-      <p className="font-medium text-amber-800">₿ Pay with USDT (TRC-20)</p>
+      <p className="font-medium text-amber-800">Pay with USDT (TRC-20)</p>
       <p className="text-amber-700 text-xs">Send exact amount to the address below. After payment, send TXID to support for activation.</p>
       <div className="flex items-center gap-2 bg-white rounded-lg border border-amber-200 p-2">
         <code className="flex-1 text-xs break-all">{address}</code>
