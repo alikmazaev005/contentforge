@@ -33,15 +33,15 @@ export const PRICING = [
   {
     name: "Free",
     price: 0,
-    posts: 5,
-    features: ["5 posts/month", "1 platform", "Basic tone control", "English only"],
+    posts: 10,
+    features: ["10 posts/month", "2 platforms", "AI images (with watermark)", "Basic tone control", "English only"],
     cta: "Get Started",
   },
   {
     name: "Pro",
     price: 9,
-    posts: 50,
-    features: ["50 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Brand voice profile"],
+    posts: 999,
+    features: ["Unlimited posts", "All 6 platforms", "AI image generation (no watermark)", "6 languages", "Brand voice profile"],
     cta: "Start Free Trial",
     popular: true,
   },
@@ -49,7 +49,7 @@ export const PRICING = [
     name: "Business",
     price: 29,
     posts: 200,
-    features: ["200 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Team collaboration", "Priority support"],
+    features: ["200 posts/month", "All 6 platforms", "AI image generation", "6 languages", "Team collaboration (5 seats)", "Priority support"],
     cta: "Start Free Trial",
   },
 ] as const
