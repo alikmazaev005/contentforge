@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.supabase.co https://*.hcaptcha.com;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.supabase.co https://*.hcaptcha.com https://*.cloudflareinsights.com;
   style-src 'self' 'unsafe-inline' https://*.hcaptcha.com;
   img-src 'self' blob: data: https:;
   font-src 'self' data:;
-  connect-src 'self' https://*.supabase.co https://*.vercel.live https://*.hcaptcha.com;
+  connect-src 'self' https://*.supabase.co https://*.vercel.live https://*.hcaptcha.com https://*.cloudflareinsights.com;
   frame-src 'self' https://*.supabase.co https://*.hcaptcha.com;
   object-src 'none';
   base-uri 'self';
