@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
+
 import { SITE_NAME } from "@/lib/constants"
 
 export function Footer() {
@@ -8,7 +8,11 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            <Sparkles className="h-4 w-4 text-violet-600" />
+            <svg width="18" height="18" viewBox="0 0 512 512" className="text-violet-600">
+              <defs><linearGradient id="logoGradF" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#7C3AED"/><stop offset="100%" stopColor="#A855F7"/></linearGradient></defs>
+              <rect width="512" height="512" rx="110" fill="url(#logoGradF)"/>
+              <text x="256" y="310" textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize="200" fontWeight="700" fill="white" letterSpacing="-5">CF</text>
+            </svg>
             {SITE_NAME}
           </Link>
           <nav className="flex items-center gap-6 text-sm text-neutral-500">

@@ -5,7 +5,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { SITE_NAME } from "@/lib/constants"
-import { Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 
@@ -25,7 +24,11 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight">
-          <Sparkles className="h-5 w-5 text-violet-600" />
+          <svg width="22" height="22" viewBox="0 0 512 512" className="text-violet-600">
+            <defs><linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#7C3AED"/><stop offset="100%" stopColor="#A855F7"/></linearGradient></defs>
+            <rect width="512" height="512" rx="110" fill="url(#logoGrad)"/>
+            <text x="256" y="310" textAnchor="middle" fontFamily="system-ui, sans-serif" fontSize="200" fontWeight="700" fill="white" letterSpacing="-5">CF</text>
+          </svg>
           {SITE_NAME}
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-600">
